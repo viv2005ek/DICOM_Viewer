@@ -1,0 +1,115 @@
+﻿<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Advanced DICOM Viewer" Height="900" Width="1600"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F6FA">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="400"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="#2C3E50" Padding="12">
+            <TextBlock Text="🧠 Advanced DICOM Viewer" Foreground="White" FontSize="18" FontWeight="Bold"/>
+        </Border>
+
+        <!-- DICOM Display with Overlay -->
+        <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                      PreviewMouseWheel="ImageScrollViewer_MouseWheel">
+            <Canvas x:Name="OverlayCanvas" Background="Black"
+                    MouseLeftButtonDown="OverlayCanvas_MouseLeftButtonDown"
+                    MouseLeftButtonUp="OverlayCanvas_MouseLeftButtonUp"
+                    MouseMove="OverlayCanvas_MouseMove">
+                <Image x:Name="DicomImage" Stretch="None"/>
+            </Canvas>
+        </ScrollViewer>
+
+        <!-- Right Panel -->
+        <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto" Margin="5">
+            <StackPanel>
+                <!-- Metadata -->
+                <Expander Header="📊 Metadata" IsExpanded="True" Margin="5">
+                    <TreeView x:Name="MetadataTree"/>
+                </Expander>
+
+                <!-- View Options -->
+                <Expander Header="👁️ View Options" IsExpanded="True" Margin="5">
+                    <StackPanel>
+                        <CheckBox x:Name="ChkShowAnnotations" Content="Show Annotations" IsChecked="True" Checked="VisibilityChanged" Unchecked="VisibilityChanged"/>
+                        <CheckBox x:Name="ChkShowROI" Content="Show ROI/Segmentation" IsChecked="True" Checked="VisibilityChanged" Unchecked="VisibilityChanged"/>
+                        <CheckBox x:Name="ChkShowSlice" Content="Show Current Slice" IsChecked="True" Checked="VisibilityChanged" Unchecked="VisibilityChanged"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- File & Cine Controls -->
+                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
+                    <WrapPanel HorizontalAlignment="Center">
+                        <Button Content="Load DICOM" Click="LoadDicom_Click" Width="120" Margin="5"/>
+                        <Button Content="Load Series" Click="LoadSeries_Click" Width="120" Margin="5"/>
+                        <Button Content="Play Cine" Click="PlayCine_Click" Width="100" Margin="5"/>
+                        <Button Content="Stop Cine" Click="StopCine_Click" Width="100" Margin="5"/>
+                    </WrapPanel>
+                </Border>
+
+                <!-- Window / Level -->
+                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="🎛️ Window / Level" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label Content="Window:" Width="60"/>
+                            <Slider x:Name="WindowSlider" Minimum="1" Maximum="4000" Value="400" Width="150" ValueChanged="WindowLevelChanged"/>
+                            <Label Content="Level:" Width="60" Margin="10,0,0,0"/>
+                            <Slider x:Name="LevelSlider" Minimum="-1000" Maximum="1000" Value="40" Width="150" ValueChanged="WindowLevelChanged"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Slice Navigation -->
+                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="🧭 Slice Navigation" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Slice:" Width="60"/>
+                            <Slider x:Name="SliceSlider" Minimum="0" Maximum="0" Value="0" Width="300" ValueChanged="SliceSlider_ValueChanged"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Plane Selector -->
+                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Plane:" Width="60"/>
+                        <ComboBox x:Name="PlaneSelector" Width="150" SelectionChanged="PlaneSelector_Changed">
+                            <ComboBoxItem Content="Axial" IsSelected="True"/>
+                            <ComboBoxItem Content="Sagittal"/>
+                            <ComboBoxItem Content="Coronal"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+
+                <!-- Annotation / ROI / Export -->
+                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
+                    <WrapPanel HorizontalAlignment="Center">
+                        <Button Content="Add Annotation" Click="AddAnnotation_Click" Width="120" Margin="5"/>
+                        <Button Content="Add ROI" Click="AddROI_Click" Width="100" Margin="5"/>
+                        <Button Content="Export Snapshot" Click="ExportSnapshot_Click" Width="120" Margin="5"/>
+                        <Button Content="Export Measurements" Click="ExportMeasurements_Click" Width="150" Margin="5"/>
+                    </WrapPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Status Bar -->
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Background="#34495E" Foreground="White">
+            <TextBlock x:Name="StatusText" Text="Ready"/>
+        </StatusBar>
+    </Grid>
+</Window>
