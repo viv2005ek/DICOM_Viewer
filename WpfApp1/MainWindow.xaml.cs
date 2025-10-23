@@ -155,16 +155,13 @@ namespace WpfApp1
         #region Visibility
         private void VisibilityChanged(object sender, RoutedEventArgs e)
         {
-            // Make sure controls are initialized
             if (OverlayCanvas == null || ChkShowAnnotations == null || ChkShowROI == null || ChkShowSlice == null)
                 return;
 
-            // Show Overlay (Annotations / ROI)
             OverlayCanvas.Visibility = (ChkShowAnnotations.IsChecked == true || ChkShowROI.IsChecked == true)
                 ? Visibility.Visible
                 : Visibility.Hidden;
 
-            // Show main image
             DicomImage.Visibility = (ChkShowSlice.IsChecked == true)
                 ? Visibility.Visible
                 : Visibility.Hidden;
