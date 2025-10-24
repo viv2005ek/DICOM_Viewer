@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspose.Imaging" Version="25.10.0" />
+    <PackageReference Include="fo-dicom.Codecs" Version="5.16.4" />
     <PackageReference Include="fo-dicom.Desktop" Version="4.0.8" />
     <PackageReference Include="fo-dicom.Imaging.Desktop" Version="5.2.4" />
     <PackageReference Include="fo-dicom.Imaging.ImageSharp" Version="5.2.4" />
