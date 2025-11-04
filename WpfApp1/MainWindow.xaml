@@ -3,197 +3,563 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Advanced DICOM Viewer" Height="900" Width="1600"
         WindowStartupLocation="CenterScreen"
-        Background="#F5F6FA"
+        Background="#000000"
         KeyDown="Window_KeyDown">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="420"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+	<Window.Resources>
+		<!-- Ultra-Modern Button Style with Advanced 3D Effects -->
+		<Style x:Key="ModernButton" TargetType="Button">
+			<Setter Property="Background">
+				<Setter.Value>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+						<GradientStop Color="#1a1f35" Offset="0"/>
+						<GradientStop Color="#2d3548" Offset="1"/>
+					</LinearGradientBrush>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="Foreground" Value="#E0E7FF"/>
+			<Setter Property="BorderBrush">
+				<Setter.Value>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+						<GradientStop Color="#4F46E5" Offset="0"/>
+						<GradientStop Color="#7C3AED" Offset="1"/>
+					</LinearGradientBrush>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="BorderThickness" Value="2"/>
+			<Setter Property="Padding" Value="14,10"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="FontSize" Value="13"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Grid>
+							<Border x:Name="shadow"
+                                    Background="#000000"
+                                    CornerRadius="10"
+                                    Opacity="0.6"
+                                    Margin="2,2,0,0">
+								<Border.Effect>
+									<BlurEffect Radius="15"/>
+								</Border.Effect>
+							</Border>
+							<Border x:Name="border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="10">
+								<Border.Effect>
+									<DropShadowEffect x:Name="glow" Color="#4F46E5" BlurRadius="0" ShadowDepth="0" Opacity="0.6"/>
+								</Border.Effect>
+								<Grid>
+									<Border x:Name="shine" CornerRadius="10" Opacity="0">
+										<Border.Background>
+											<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+												<GradientStop Color="#40FFFFFF" Offset="0"/>
+												<GradientStop Color="#00FFFFFF" Offset="0.5"/>
+											</LinearGradientBrush>
+										</Border.Background>
+									</Border>
+									<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+								</Grid>
+							</Border>
+						</Grid>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Trigger.EnterActions>
+									<BeginStoryboard>
+										<Storyboard>
+											<DoubleAnimation Storyboard.TargetName="shine"
+                                                           Storyboard.TargetProperty="Opacity"
+                                                           To="0.3" Duration="0:0:0.3"/>
+											<DoubleAnimation Storyboard.TargetName="glow"
+                                                           Storyboard.TargetProperty="BlurRadius"
+                                                           To="25" Duration="0:0:0.3"/>
+											<DoubleAnimation Storyboard.TargetName="glow"
+                                                           Storyboard.TargetProperty="Opacity"
+                                                           To="1" Duration="0:0:0.3"/>
+										</Storyboard>
+									</BeginStoryboard>
+								</Trigger.EnterActions>
+								<Trigger.ExitActions>
+									<BeginStoryboard>
+										<Storyboard>
+											<DoubleAnimation Storyboard.TargetName="shine"
+                                                           Storyboard.TargetProperty="Opacity"
+                                                           To="0" Duration="0:0:0.3"/>
+											<DoubleAnimation Storyboard.TargetName="glow"
+                                                           Storyboard.TargetProperty="BlurRadius"
+                                                           To="0" Duration="0:0:0.3"/>
+											<DoubleAnimation Storyboard.TargetName="glow"
+                                                           Storyboard.TargetProperty="Opacity"
+                                                           To="0.6" Duration="0:0:0.3"/>
+										</Storyboard>
+									</BeginStoryboard>
+								</Trigger.ExitActions>
+							</Trigger>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter TargetName="border" Property="RenderTransform">
+									<Setter.Value>
+										<ScaleTransform ScaleX="0.93" ScaleY="0.93"/>
+									</Setter.Value>
+								</Setter>
+								<Setter TargetName="border" Property="Effect">
+									<Setter.Value>
+										<DropShadowEffect Color="#7C3AED" BlurRadius="35" ShadowDepth="0" Opacity="1"/>
+									</Setter.Value>
+								</Setter>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+		</Style>
 
-        <!-- Header -->
-        <Border Grid.Row="0" Grid.ColumnSpan="2" Background="#2C3E50" Padding="12">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="🧠 Advanced DICOM Viewer" Foreground="White" FontSize="18" FontWeight="Bold"/>
-                <TextBlock x:Name="ZoomLabel" Text="Zoom: 100%" Foreground="White" FontSize="14" Margin="30,0,0,0" VerticalAlignment="Center"/>
-            </StackPanel>
-        </Border>
+		<!-- Advanced Glassmorphism Panel -->
+		<Style x:Key="GlassPanel" TargetType="Border">
+			<Setter Property="Background">
+				<Setter.Value>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,1" Opacity="0.15">
+						<GradientStop Color="#1a1f35" Offset="0"/>
+						<GradientStop Color="#2d3548" Offset="0.5"/>
+						<GradientStop Color="#1a1f35" Offset="1"/>
+					</LinearGradientBrush>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="BorderBrush">
+				<Setter.Value>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+						<GradientStop Color="#4F46E5" Offset="0"/>
+						<GradientStop Color="#7C3AED" Offset="0.5"/>
+						<GradientStop Color="#EC4899" Offset="1"/>
+					</LinearGradientBrush>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="BorderThickness" Value="1.5"/>
+			<Setter Property="CornerRadius" Value="16"/>
+			<Setter Property="Padding" Value="18"/>
+			<Setter Property="Margin" Value="10"/>
+			<Setter Property="Effect">
+				<Setter.Value>
+					<DropShadowEffect Color="#4F46E5" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <!-- DICOM Display with Overlay -->
-        <Border Grid.Row="1" Grid.Column="0" Background="Black" Margin="5" BorderBrush="#34495E" BorderThickness="1">
-            <ScrollViewer x:Name="ImageScrollViewer" 
-                          HorizontalScrollBarVisibility="Auto" 
-                          VerticalScrollBarVisibility="Auto"
-                          PreviewMouseWheel="ImageScrollViewer_MouseWheel">
-                <Canvas x:Name="OverlayCanvas" Background="Black"
-                        MouseLeftButtonDown="OverlayCanvas_MouseLeftButtonDown"
-                        MouseLeftButtonUp="OverlayCanvas_MouseLeftButtonUp"
-                        MouseMove="OverlayCanvas_MouseMove"
-                        MouseRightButtonDown="OverlayCanvas_MouseRightButtonDown">
-                    <Image x:Name="DicomImage" Stretch="None"/>
-                </Canvas>
-            </ScrollViewer>
-        </Border>
+		<!-- Premium Expander Style -->
+		<Style x:Key="ModernExpander" TargetType="Expander">
+			<Setter Property="Foreground" Value="#E0E7FF"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="FontSize" Value="15"/>
+			<Setter Property="Margin" Value="10"/>
+			<Setter Property="Background">
+				<Setter.Value>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,1" Opacity="0.2">
+						<GradientStop Color="#1a1f35" Offset="0"/>
+						<GradientStop Color="#2d3548" Offset="1"/>
+					</LinearGradientBrush>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="BorderBrush">
+				<Setter.Value>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+						<GradientStop Color="#4F46E5" Offset="0"/>
+						<GradientStop Color="#7C3AED" Offset="1"/>
+					</LinearGradientBrush>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="BorderThickness" Value="2"/>
+			<Setter Property="Effect">
+				<Setter.Value>
+					<DropShadowEffect Color="#4F46E5" BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
-        <!-- Right Panel -->
-        <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto" Margin="5">
-            <StackPanel>
-                <!-- Metadata -->
-                <Expander Header="📊 Metadata" IsExpanded="True" Margin="5">
-                    <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto">
-                        <TreeView x:Name="MetadataTree"/>
-                    </ScrollViewer>
-                </Expander>
+		<!-- Neon CheckBox Style -->
+		<Style x:Key="ModernCheckBox" TargetType="CheckBox">
+			<Setter Property="Foreground" Value="#C7D2FE"/>
+			<Setter Property="FontSize" Value="13"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+		</Style>
 
-                <!-- View Options -->
-                <Expander Header="👁️ View Options" IsExpanded="True" Margin="5">
-                    <StackPanel Margin="5">
-                        <CheckBox x:Name="ChkShowAnnotations" Content="Show Annotations" IsChecked="True" Margin="0,2"/>
-                        <CheckBox x:Name="ChkShowMeasurements" Content="Show Measurements" IsChecked="True" Margin="0,2"/>
-                        <CheckBox x:Name="ChkShowHU" Content="Show HU Values (CT only)" IsChecked="True" Margin="0,2"/>
-                    </StackPanel>
-                </Expander>
+		<!-- Neon Slider Style -->
+		<Style x:Key="ModernSlider" TargetType="Slider">
+			<Setter Property="Foreground" Value="#6366F1"/>
+			<Setter Property="Background" Value="#1a1f35"/>
+		</Style>
+	</Window.Resources>
 
-                <!-- File & Cine Controls -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <WrapPanel HorizontalAlignment="Center">
-                        <Button Content="Load DICOM" Click="LoadDicom_Click" Width="120" Margin="3"/>
-                        <Button Content="Load Series" Click="LoadSeries_Click" Width="120" Margin="3"/>
-                        <Button Content="▶ Play Cine" Click="PlayCine_Click" Width="100" Margin="3"/>
-                        <Button Content="⏸ Stop Cine" Click="StopCine_Click" Width="100" Margin="3"/>
-                    </WrapPanel>
-                </Border>
+	<Grid>
+		<Grid.Background>
+			<RadialGradientBrush>
+				<GradientStop Color="#000000" Offset="0"/>
+				<GradientStop Color="#0a0e1a" Offset="0.5"/>
+				<GradientStop Color="#000000" Offset="1"/>
+			</RadialGradientBrush>
+		</Grid.Background>
 
-                <!-- Window / Level Presets -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="🎛️ Window / Level Presets" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <WrapPanel>
-                            <Button Content="Abdomen" Click="PresetAbdomen_Click" Width="90" Margin="2"/>
-                            <Button Content="Lung" Click="PresetLung_Click" Width="90" Margin="2"/>
-                            <Button Content="Brain" Click="PresetBrain_Click" Width="90" Margin="2"/>
-                            <Button Content="Bone" Click="PresetBone_Click" Width="90" Margin="2"/>
-                            <Button Content="Mediastinum" Click="PresetMediastinum_Click" Width="90" Margin="2"/>
-                            <Button Content="Liver" Click="PresetLiver_Click" Width="90" Margin="2"/>
-                        </WrapPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                            <Label Content="Window:" Width="60"/>
-                            <Slider x:Name="WindowSlider" Minimum="1" Maximum="4000" Value="400" Width="120" ValueChanged="WindowLevelChanged"/>
-                            <TextBox x:Name="WindowValue" Text="400" Width="50" Margin="5,0" TextChanged="WindowValue_TextChanged"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Level:" Width="60"/>
-                            <Slider x:Name="LevelSlider" Minimum="-1000" Maximum="3000" Value="40" Width="120" ValueChanged="WindowLevelChanged"/>
-                            <TextBox x:Name="LevelValue" Text="40" Width="50" Margin="5,0" TextChanged="LevelValue_TextChanged"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="470"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
 
-                <!-- Slice Navigation -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="🧭 Slice Navigation" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Slice:" Width="60"/>
-                            <Slider x:Name="SliceSlider" Minimum="0" Maximum="0" Value="0" Width="250" ValueChanged="SliceSlider_ValueChanged"/>
-                            <TextBlock x:Name="SliceInfo" Text="0/0" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+		<!-- Spectacular Animated Header -->
+		<Border Grid.Row="0" Grid.ColumnSpan="2" Padding="20" CornerRadius="0,0,20,20">
+			<Border.Background>
+				<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+					<GradientStop Color="#1a1f35" Offset="0"/>
+					<GradientStop Color="#4F46E5" Offset="0.3"/>
+					<GradientStop Color="#7C3AED" Offset="0.6"/>
+					<GradientStop Color="#EC4899" Offset="1"/>
+				</LinearGradientBrush>
+			</Border.Background>
+			<Border.Effect>
+				<DropShadowEffect Color="#4F46E5" BlurRadius="40" ShadowDepth="0" Opacity="0.8"/>
+			</Border.Effect>
+			<Grid>
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+					<Border Background="#10B981" CornerRadius="50" Width="50" Height="50" Margin="0,0,16,0">
+						<Border.Effect>
+							<DropShadowEffect Color="#10B981" BlurRadius="20" ShadowDepth="0" Opacity="0.8"/>
+						</Border.Effect>
+						<TextBlock Text="🧠" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center">
+							<TextBlock.RenderTransform>
+								<RotateTransform x:Name="BrainRotate" CenterX="0" CenterY="0"/>
+							</TextBlock.RenderTransform>
+							<TextBlock.Triggers>
+								<EventTrigger RoutedEvent="Loaded">
+									<BeginStoryboard>
+										<Storyboard RepeatBehavior="Forever">
+											<DoubleAnimation Storyboard.TargetName="BrainRotate"
+                                                           Storyboard.TargetProperty="Angle"
+                                                           From="0" To="360" Duration="0:0:8"
+                                                           AccelerationRatio="0.3" DecelerationRatio="0.3"/>
+										</Storyboard>
+									</BeginStoryboard>
+								</EventTrigger>
+							</TextBlock.Triggers>
+						</TextBlock>
+					</Border>
+					<StackPanel VerticalAlignment="Center">
+						<TextBlock Text="Advanced DICOM Viewer" Foreground="White" FontSize="28" FontWeight="Bold">
+							<TextBlock.Effect>
+								<DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="3" Opacity="1"/>
+							</TextBlock.Effect>
+						</TextBlock>
+						<TextBlock Text="Professional Medical Imaging Suite" Foreground="#C7D2FE" FontSize="12" FontStyle="Italic" Margin="0,2,0,0"/>
+					</StackPanel>
+				</StackPanel>
 
-                <!-- Transform Tools -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="🔄 Transform Tools" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <WrapPanel>
-                            <Button Content="↻ Rotate 90°" Click="RotateLeft_Click" Width="100" Margin="2"/>
-                            <Button Content="↺ Rotate -90°" Click="RotateRight_Click" Width="100" Margin="2"/>
-                            <Button Content="⇄ Flip H" Click="FlipHorizontal_Click" Width="90" Margin="2"/>
-                            <Button Content="⇅ Flip V" Click="FlipVertical_Click" Width="90" Margin="2"/>
-                            <Button Content="Reset" Click="ResetTransform_Click" Width="90" Margin="2"/>
-                        </WrapPanel>
-                    </StackPanel>
-                </Border>
+				<Border Background="#10B981" CornerRadius="20" Padding="16,8" HorizontalAlignment="Right" VerticalAlignment="Center">
+					<Border.Effect>
+						<DropShadowEffect Color="#10B981" BlurRadius="25" ShadowDepth="0" Opacity="0.8"/>
+					</Border.Effect>
+					<TextBlock x:Name="ZoomLabel" Text="Zoom: 100%" Foreground="White" FontSize="16" FontWeight="Bold"/>
+				</Border>
+			</Grid>
+		</Border>
 
-                <!-- Zoom Controls -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="🔍 Zoom Controls" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <WrapPanel>
-                            <Button Content="Zoom In (+)" Click="ZoomIn_Click" Width="100" Margin="2"/>
-                            <Button Content="Zoom Out (-)" Click="ZoomOut_Click" Width="100" Margin="2"/>
-                            <Button Content="Fit to Screen" Click="FitToScreen_Click" Width="100" Margin="2"/>
-                            <Button Content="100%" Click="Zoom100_Click" Width="90" Margin="2"/>
-                        </WrapPanel>
-                    </StackPanel>
-                </Border>
+		<!-- Premium DICOM Display with Advanced 3D Border -->
+		<Border Grid.Row="1" Grid.Column="0" Background="#000000" Margin="16" CornerRadius="20" BorderThickness="3">
+			<Border.BorderBrush>
+				<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+					<GradientStop Color="#4F46E5" Offset="0"/>
+					<GradientStop Color="#7C3AED" Offset="0.5"/>
+					<GradientStop Color="#EC4899" Offset="1"/>
+				</LinearGradientBrush>
+			</Border.BorderBrush>
+			<Border.Effect>
+				<DropShadowEffect Color="#4F46E5" BlurRadius="35" ShadowDepth="0" Opacity="0.7"/>
+			</Border.Effect>
+			<Grid>
+				<Border CornerRadius="18" Opacity="0.1">
+					<Border.Background>
+						<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+							<GradientStop Color="#4F46E5" Offset="0"/>
+							<GradientStop Color="#7C3AED" Offset="1"/>
+						</LinearGradientBrush>
+					</Border.Background>
+				</Border>
+				<ScrollViewer x:Name="ImageScrollViewer"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              PreviewMouseWheel="ImageScrollViewer_MouseWheel">
+					<Canvas x:Name="OverlayCanvas" Background="Black"
+                            MouseLeftButtonDown="OverlayCanvas_MouseLeftButtonDown"
+                            MouseLeftButtonUp="OverlayCanvas_MouseLeftButtonUp"
+                            MouseMove="OverlayCanvas_MouseMove"
+                            MouseRightButtonDown="OverlayCanvas_MouseRightButtonDown">
+						<Image x:Name="DicomImage" Stretch="None">
+							<Image.RenderTransform>
+								<TransformGroup>
+									<ScaleTransform x:Name="ImageScale"/>
+									<TranslateTransform x:Name="ImageTranslate"/>
+								</TransformGroup>
+							</Image.RenderTransform>
+						</Image>
+					</Canvas>
+				</ScrollViewer>
+			</Grid>
+		</Border>
 
-                <!-- Measurement Tools -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="📏 Measurement Tools" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <WrapPanel>
-                            <Button x:Name="BtnDistance" Content="Distance" Click="MeasureDistance_Click" Width="100" Margin="2"/>
-                            <Button x:Name="BtnAngle" Content="Angle" Click="MeasureAngle_Click" Width="100" Margin="2"/>
-                            <Button x:Name="BtnArea" Content="Area (ROI)" Click="MeasureArea_Click" Width="100" Margin="2"/>
-                            <Button Content="Clear All" Click="ClearMeasurements_Click" Width="90" Margin="2"/>
-                        </WrapPanel>
-                        <TextBlock Text="Active Tool: None" x:Name="ActiveToolText" Margin="0,5,0,0" FontStyle="Italic"/>
-                    </StackPanel>
-                </Border>
+		<!-- Right Panel with Enhanced Scroll -->
+		<ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto" Margin="12">
+			<StackPanel>
+				<!-- Metadata Panel -->
+				<Expander Header="📊 DICOM Metadata" IsExpanded="True" Style="{StaticResource ModernExpander}">
+					<Border Background="#0a0e1a" CornerRadius="12" Margin="8" Padding="12" BorderBrush="#4F46E5" BorderThickness="1">
+						<ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto">
+							<TreeView x:Name="MetadataTree" Background="Transparent" BorderThickness="0">
+								<TreeView.Resources>
+									<Style TargetType="TreeViewItem">
+										<Setter Property="Foreground" Value="#E0E7FF"/>
+										<Setter Property="FontWeight" Value="SemiBold"/>
+										<Setter Property="FontSize" Value="12"/>
+									</Style>
+								</TreeView.Resources>
+							</TreeView>
+						</ScrollViewer>
+					</Border>
+				</Expander>
 
-                <!-- Annotation Tools -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="✏️ Annotation Tools" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <WrapPanel>
-                            <Button x:Name="BtnFreehand" Content="Freehand" Click="Freehand_Click" Width="100" Margin="2"/>
-                            <Button x:Name="BtnArrow" Content="Arrow" Click="Arrow_Click" Width="100" Margin="2"/>
-                            <Button x:Name="BtnText" Content="Text" Click="TextAnnotation_Click" Width="100" Margin="2"/>
-                            <Button Content="Clear" Click="ClearAnnotations_Click" Width="90" Margin="2"/>
-                        </WrapPanel>
-                    </StackPanel>
-                </Border>
+				<!-- View Options -->
+				<Expander Header="👁️ Display Settings" IsExpanded="True" Style="{StaticResource ModernExpander}">
+					<Border Background="#0a0e1a" CornerRadius="12" Margin="8" Padding="12" BorderBrush="#7C3AED" BorderThickness="1">
+						<StackPanel>
+							<CheckBox x:Name="ChkShowAnnotations" Content="✨ Show Annotations" IsChecked="True" Margin="0,6" Style="{StaticResource ModernCheckBox}"/>
+							<CheckBox x:Name="ChkShowMeasurements" Content="📏 Show Measurements" IsChecked="True" Margin="0,6" Style="{StaticResource ModernCheckBox}"/>
+							<CheckBox x:Name="ChkShowHU" Content="🔬 Show HU Values (CT only)" IsChecked="True" Margin="0,6" Style="{StaticResource ModernCheckBox}"/>
+						</StackPanel>
+					</Border>
+				</Expander>
 
-                <!-- Synchronization -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <StackPanel>
-                        <TextBlock Text="🔗 Synchronization" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <CheckBox x:Name="ChkSyncScroll" Content="Sync Scrolling" IsChecked="False" Margin="0,2"/>
-                        <CheckBox x:Name="ChkSyncZoom" Content="Sync Zoom" IsChecked="False" Margin="0,2"/>
-                        <CheckBox x:Name="ChkSyncWL" Content="Sync Window/Level" IsChecked="False" Margin="0,2"/>
-                    </StackPanel>
-                </Border>
+				<!-- File & Cine Controls -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="📂 File Operations" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<WrapPanel HorizontalAlignment="Center">
+							<Button Content="📁 Load DICOM" Click="LoadDicom_Click" Width="140" Margin="4" Style="{StaticResource ModernButton}"/>
+							<Button Content="📚 Load Series" Click="LoadSeries_Click" Width="140" Margin="4" Style="{StaticResource ModernButton}"/>
+							<Button Content="▶ Play Cine" Click="PlayCine_Click" Width="120" Margin="4" Style="{StaticResource ModernButton}"/>
+							<Button Content="⏸ Stop Cine" Click="StopCine_Click" Width="120" Margin="4" Style="{StaticResource ModernButton}"/>
+						</WrapPanel>
+					</StackPanel>
+				</Border>
 
-                <!-- Export -->
-                <Border Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" Padding="8" Margin="5">
-                    <WrapPanel HorizontalAlignment="Center">
-                        <Button Content="Export Snapshot" Click="ExportSnapshot_Click" Width="120" Margin="3"/>
-                        <Button Content="Export Report" Click="ExportMeasurements_Click" Width="120" Margin="3"/>
-                    </WrapPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
+				<!-- Window / Level Presets -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="🎛️ Window / Level Presets" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<WrapPanel HorizontalAlignment="Center">
+							<Button Content="🫁 Abdomen" Click="PresetAbdomen_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="🫁 Lung" Click="PresetLung_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="🧠 Brain" Click="PresetBrain_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="🦴 Bone" Click="PresetBone_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="❤️ Mediastinum" Click="PresetMediastinum_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="🫀 Liver" Click="PresetLiver_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+						</WrapPanel>
+						<Separator Background="#4F46E5" Height="2" Margin="0,16,0,12" Opacity="0.3"/>
+						<StackPanel Orientation="Horizontal" Margin="0,8,0,8">
+							<Label Content="Window:" Width="75" Foreground="#A5B4FC" FontWeight="Bold" FontSize="14"/>
+							<Slider x:Name="WindowSlider" Minimum="1" Maximum="4000" Value="400" Width="200" ValueChanged="WindowLevelChanged" Style="{StaticResource ModernSlider}"/>
+							<TextBox x:Name="WindowValue" Text="400" Width="70" Margin="10,0" TextChanged="WindowValue_TextChanged"
+                                     Background="#1a1f35" Foreground="#E0E7FF" BorderBrush="#4F46E5" BorderThickness="2" Padding="8" FontWeight="Bold"
+                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+						</StackPanel>
+						<StackPanel Orientation="Horizontal">
+							<Label Content="Level:" Width="75" Foreground="#A5B4FC" FontWeight="Bold" FontSize="14"/>
+							<Slider x:Name="LevelSlider" Minimum="-1000" Maximum="3000" Value="40" Width="200" ValueChanged="WindowLevelChanged" Style="{StaticResource ModernSlider}"/>
+							<TextBox x:Name="LevelValue" Text="40" Width="70" Margin="10,0" TextChanged="LevelValue_TextChanged"
+                                     Background="#1a1f35" Foreground="#E0E7FF" BorderBrush="#7C3AED" BorderThickness="2" Padding="8" FontWeight="Bold"
+                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+						</StackPanel>
+					</StackPanel>
+				</Border>
 
-        <!-- Status Bar -->
-        <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Background="#34495E" Foreground="White">
-            <StatusBarItem>
-                <TextBlock x:Name="StatusText" Text="Ready"/>
-            </StatusBarItem>
-            <Separator/>
-            <StatusBarItem>
-                <TextBlock x:Name="MousePosText" Text="Position: -"/>
-            </StatusBarItem>
-            <Separator/>
-            <StatusBarItem>
-                <TextBlock x:Name="HUValueText" Text="HU: -"/>
-            </StatusBarItem>
-        </StatusBar>
-    </Grid>
+				<!-- Slice Navigation -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="🧭 Slice Navigation" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+							<Label Content="Slice:" Width="65" Foreground="#A5B4FC" FontWeight="Bold" FontSize="14"/>
+							<Slider x:Name="SliceSlider" Minimum="0" Maximum="0" Value="0" Width="280" ValueChanged="SliceSlider_ValueChanged" Style="{StaticResource ModernSlider}"/>
+							<Border Background="#1a1f35" CornerRadius="8" Padding="10,5" Margin="12,0,0,0" BorderBrush="#EC4899" BorderThickness="2">
+								<TextBlock x:Name="SliceInfo" Text="0/0" VerticalAlignment="Center" Foreground="#E0E7FF" FontWeight="Bold" FontSize="14"/>
+							</Border>
+						</StackPanel>
+					</StackPanel>
+				</Border>
+
+				<!-- Transform Tools -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="🔄 Transform Tools" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<WrapPanel HorizontalAlignment="Center">
+							<Button Content="↻ Rotate 90°" Click="RotateLeft_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="↺ Rotate -90°" Click="RotateRight_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="⇄ Flip H" Click="FlipHorizontal_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="⇅ Flip V" Click="FlipVertical_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="🔄 Reset" Click="ResetTransform_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+						</WrapPanel>
+					</StackPanel>
+				</Border>
+
+				<!-- Zoom Controls -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="🔍 Zoom Controls" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<WrapPanel HorizontalAlignment="Center">
+							<Button Content="🔍 Zoom In (+)" Click="ZoomIn_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="🔍 Zoom Out (-)" Click="ZoomOut_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="📐 Fit Screen" Click="FitToScreen_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="1:1 (100%)" Click="Zoom100_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+						</WrapPanel>
+					</StackPanel>
+				</Border>
+
+				<!-- Measurement Tools -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="📏 Measurement Tools" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<WrapPanel HorizontalAlignment="Center">
+							<Button x:Name="BtnDistance" Content="📏 Distance" Click="MeasureDistance_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button x:Name="BtnAngle" Content="📐 Angle" Click="MeasureAngle_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button x:Name="BtnArea" Content="⬡ Area ROI" Click="MeasureArea_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="🗑️ Clear All" Click="ClearMeasurements_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+						</WrapPanel>
+						<Border Background="#1a1f35" CornerRadius="10" Padding="12,8" Margin="8,12,8,0" BorderBrush="#10B981" BorderThickness="1.5">
+							<TextBlock x:Name="ActiveToolText" Text="Active Tool: None" FontStyle="Italic" Foreground="#A5B4FC" FontSize="13" HorizontalAlignment="Center"/>
+						</Border>
+					</StackPanel>
+				</Border>
+
+				<!-- Annotation Tools -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="✏️ Annotation Tools" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<WrapPanel HorizontalAlignment="Center">
+							<Button x:Name="BtnFreehand" Content="✏️ Freehand" Click="Freehand_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button x:Name="BtnArrow" Content="➤ Arrow" Click="Arrow_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button x:Name="BtnText" Content="📝 Text" Click="TextAnnotation_Click" Width="110" Margin="3" Style="{StaticResource ModernButton}"/>
+							<Button Content="🗑️ Clear" Click="ClearAnnotations_Click" Width="100" Margin="3" Style="{StaticResource ModernButton}"/>
+						</WrapPanel>
+					</StackPanel>
+				</Border>
+
+				<!-- Synchronization -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="🔗 Synchronization" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<CheckBox x:Name="ChkSyncScroll" Content="⚡ Sync Scrolling" IsChecked="False" Margin="0,6" Style="{StaticResource ModernCheckBox}"/>
+						<CheckBox x:Name="ChkSyncZoom" Content="🔍 Sync Zoom Level" IsChecked="False" Margin="0,6" Style="{StaticResource ModernCheckBox}"/>
+						<CheckBox x:Name="ChkSyncWL" Content="🎛️ Sync Window/Level" IsChecked="False" Margin="0,6" Style="{StaticResource ModernCheckBox}"/>
+					</StackPanel>
+				</Border>
+
+				<!-- Export Options -->
+				<Border Style="{StaticResource GlassPanel}">
+					<StackPanel>
+						<TextBlock Text="💾 Export Options" FontWeight="Bold" FontSize="16" Foreground="#E0E7FF" Margin="0,0,0,14" HorizontalAlignment="Center"/>
+						<WrapPanel HorizontalAlignment="Center">
+							<Button Content="📸 Snapshot" Click="ExportSnapshot_Click" Width="150" Margin="4" Style="{StaticResource ModernButton}"/>
+							<Button Content="📄 Report" Click="ExportMeasurements_Click" Width="150" Margin="4" Style="{StaticResource ModernButton}"/>
+						</WrapPanel>
+					</StackPanel>
+				</Border>
+			</StackPanel>
+		</ScrollViewer>
+
+		<!-- Ultra-Modern Animated Status Bar -->
+		<Border Grid.Row="2" Grid.ColumnSpan="2" CornerRadius="20,20,0,0" Padding="16">
+			<Border.Background>
+				<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+					<GradientStop Color="#0a0e1a" Offset="0"/>
+					<GradientStop Color="#1a1f35" Offset="0.5"/>
+					<GradientStop Color="#0a0e1a" Offset="1"/>
+				</LinearGradientBrush>
+			</Border.Background>
+			<Border.Effect>
+				<DropShadowEffect Color="#4F46E5" BlurRadius="20" ShadowDepth="0" Opacity="0.4"/>
+			</Border.Effect>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+
+				<StackPanel Orientation="Horizontal">
+					<Border Background="#10B981" Width="14" Height="14" CornerRadius="7" Margin="0,0,12,0">
+						<Border.Effect>
+							<DropShadowEffect Color="#10B981" BlurRadius="15" ShadowDepth="0" Opacity="0.8"/>
+						</Border.Effect>
+						<Border.Triggers>
+							<EventTrigger RoutedEvent="Loaded">
+								<BeginStoryboard>
+									<Storyboard RepeatBehavior="Forever">
+										<DoubleAnimation Storyboard.TargetProperty="(Border.Effect).(DropShadowEffect.Opacity)"
+                                                       From="0.8" To="0.2" Duration="0:0:1.2" AutoReverse="True"/>
+									</Storyboard>
+								</BeginStoryboard>
+							</EventTrigger>
+						</Border.Triggers>
+					</Border>
+					<TextBlock x:Name="StatusText" Text="Ready" Foreground="#E0E7FF" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
+				</StackPanel>
+
+				<Border Grid.Column="1" CornerRadius="12" Padding="16,8" Margin="10,0" BorderThickness="2">
+					<Border.Background>
+						<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+							<GradientStop Color="#1a1f35" Offset="0"/>
+							<GradientStop Color="#2d3548" Offset="1"/>
+						</LinearGradientBrush>
+					</Border.Background>
+					<Border.BorderBrush>
+						<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+							<GradientStop Color="#4F46E5" Offset="0"/>
+							<GradientStop Color="#7C3AED" Offset="1"/>
+						</LinearGradientBrush>
+					</Border.BorderBrush>
+					<Border.Effect>
+						<DropShadowEffect Color="#4F46E5" BlurRadius="12" ShadowDepth="0" Opacity="0.5"/>
+					</Border.Effect>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="📍" FontSize="14" Margin="0,0,6,0"/>
+						<TextBlock x:Name="MousePosText" Text="Position: -" Foreground="#C7D2FE" FontWeight="SemiBold"/>
+					</StackPanel>
+				</Border>
+
+				<Border Grid.Column="2" CornerRadius="12" Padding="16,8" Margin="10,0" BorderThickness="2">
+					<Border.Background>
+						<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+							<GradientStop Color="#1a1f35" Offset="0"/>
+							<GradientStop Color="#2d3548" Offset="1"/>
+						</LinearGradientBrush>
+					</Border.Background>
+					<Border.BorderBrush>
+						<LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+							<GradientStop Color="#7C3AED" Offset="0"/>
+							<GradientStop Color="#EC4899" Offset="1"/>
+						</LinearGradientBrush>
+					</Border.BorderBrush>
+					<Border.Effect>
+						<DropShadowEffect Color="#EC4899" BlurRadius="12" ShadowDepth="0" Opacity="0.5"/>
+					</Border.Effect>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="🔬" FontSize="14" Margin="0,0,6,0"/>
+						<TextBlock x:Name="HUValueText" Text="HU: -" Foreground="#C7D2FE" FontWeight="SemiBold"/>
+					</StackPanel>
+				</Border>
+			</Grid>
+		</Border>
+	</Grid>
 </Window>
