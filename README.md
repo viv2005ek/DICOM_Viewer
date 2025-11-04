@@ -75,7 +75,7 @@ A lightweight DICOM image viewer built in C# using WPF and **fo-dicom**. Support
 
 ## Screenshots
 
-<img width="1891" height="1013" alt="image" src="https://github.com/user-attachments/assets/9c431041-f8a9-4625-829e-9148cdd60ca6" />
+<img width="1918" height="1015" alt="image" src="https://github.com/user-attachments/assets/b56c8098-e455-44b0-924b-544f604c2d85" />
 
 ---
 
